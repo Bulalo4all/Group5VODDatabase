@@ -14,7 +14,7 @@ CREATE TABLE vod_category (
 -- Creating the ADVISORY table
 CREATE TABLE vod_advisory (
     advisory_id NUMBER,
-    advisory_type NUMBER(2) NOT NULL CONSTRAINT adv_type_ck CHECK (advisory_type BETWEEN 1 AND 5),
+    advisory_type NUMBER(2) NOT NULL CONSTRAINT adv_type_ck CHECK (advisory_type BETWEEN 1 AND 17),
     short_description VARCHAR2(255) NOT NULL,
     full_description VARCHAR2(1000) NOT NULL,
     CONSTRAINT vod_advisory_pk PRIMARY KEY (advisory_id) -- Changed constraint name
