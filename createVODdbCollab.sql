@@ -1,6 +1,9 @@
 -- Script to create VOD Database --
 
 set echo on
+
+drop table VOD_MOVIE_ACTOR_BRIDGE cascade constraints;
+drop table VOD_ACTOR_ACTRESS cascade constraints;
 drop table VOD_MOVIE_DIRECTOR_BRIDGE cascade constraints;
 drop table VOD_MOVIE_ADVISORY_BRIDGE cascade constraints;
 drop table VOD_MOVIE_CATEGORY_BRIDGE cascade constraints;
@@ -97,21 +100,58 @@ CREATE TABLE VOD_RENTAL (
         CONSTRAINT sys_credit_card_type_CK CHECK (credit_card_type in ('AX', 'MC', 'VS'))
 );
 
--- Unique Keys added to VOD rental table
 ALTER TABLE VOD_RENTAL 
     ADD CONSTRAINT start_date_viewing_CK CHECK (start_date_viewing >= rental_date);  
 ALTER TABLE VOD_RENTAL
     ADD CONSTRAINT expiry_date_viewing_CK CHECK (expiry_date_viewing > start_date_viewing); 
 
---VOD_MOVIE_RENTAL_BRIDGE creation with foreign keys
-CREATE TABLE VOD_MOVIE_RENTAL_BRIDGE (
-    movie_rental_bridge_id NUMBER
-        CONSTRAINT sys_movie_rental_bridge_id_PK PRIMARY KEY,
-    movie_id NUMBER
-        CONSTRAINT sys_movie_id_rental_bridge_FK REFERENCES vod_movie(movie_id),
-    rental_id NUMBER
-        CONSTRAINT sys_rental_id_movie_bridge_FK REFERENCES vod_rental(rental_id)
+CREATE TABLE VOD_ACTOR_ACTRESS(
+	actor_actress_id NUMBER 
+		CONSTRAINT sys_actor_id_PK PRIMARY KEY,
+	first_name VARCHAR2(50) NOT NULL, 
+	last_name VARCHAR2(50) NOT NULL, 
+	date_of_birth DATE NOT NULL,
+	actor_actress_email VARCHAR2(50)
 );
+
+ALTER TABLE VOD_ACTOR_ACTRESS
+	ADD CONSTRAINT sys_actor_email_UK UNIQUE (actor_actress_email);
+
+
+CREATE TABLE VOD_MOVIE_ACTOR_BRIDGE(
+	actor_actress_id NUMBER,
+	movie_id NUMBER,
+	role_name VARCHAR2(25),
+    PRIMARY KEY (actor_actress_id, movie_id) 
+);
+
+ALTER TABLE VOD_MOVIE_ACTOR_BRIDGE
+	ADD CONSTRAINT sys_movie_actor_bridge_FK1 FOREIGN KEY(movie_id) REFERENCES vod_movie (movie_id);	
+ALTER TABLE VOD_MOVIE_ACTOR_BRIDGE
+	ADD CONSTRAINT sys_movie_actor_bridge_FK2 FOREIGN KEY(actor_actress_id) REFERENCES VOD_ACTOR_ACTRESS(actor_actress_id);
+
+CREATE TABLE VOD_DIRECTOR(
+	director_id NUMBER CONSTRAINT sys_director_id_PK PRIMARY KEY,
+ 	first_name VARCHAR2(50) NOT NULL,
+ 	last_name VARCHAR2(50)NOT NULL, 
+ 	date_of_birth DATE NOT NULL,
+ 	director_email VARCHAR2(50)
+);
+
+ALTER TABLE VOD_DIRECTOR
+	ADD CONSTRAINT sys_director_email_UK UNIQUE (director_email);
+
+CREATE TABLE VOD_MOVIE_DIRECTOR_BRIDGE(
+	director_id NUMBER,
+	movie_id NUMBER,
+	PRIMARY KEY (director_id, movie_id)
+);
+
+ALTER TABLE VOD_MOVIE_DIRECTOR_BRIDGE
+	ADD CONSTRAINT sys_movie_director_FK1 FOREIGN KEY(movie_id) REFERENCES vod_movie(movie_id);	
+ALTER TABLE VOD_MOVIE_DIRECTOR_BRIDGE
+	ADD CONSTRAINT sys_movie_director_FK2 FOREIGN KEY(director_id) REFERENCES vod_director (director_id);
+
 
 --Wishlist bridge created with constraints
 CREATE TABLE VOD_WISHLIST(
@@ -164,48 +204,18 @@ CREATE TABLE vod_advisory (
 );
 
 CREATE TABLE VOD_MOVIE_ADVISORY_BRIDGE (
-    movie_advisory_bridge_id NUMBER
-        CONSTRAINT sys_movie_advisory_bridge_id_PK PRIMARY KEY,
     advisory_id NUMBER
         CONSTRAINT sys_advisory_id_movie_bridge_FK REFERENCES vod_advisory(advisory_id),
     movie_id NUMBER
         CONSTRAINT sys_movie_id_advisory_bridge_FK REFERENCES vod_movie(movie_id)
+    PRIMARY KEY (advisory_id, movie_id)
 );
 
 -- Creating the VOD_MOVIE_CATEGORY_BRIDGE
 CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
-    movie_category_bridge_id NUMBER
-        CONSTRAINT sys_movie_category_bridge_id_PK PRIMARY KEY,
     category_id NUMBER
         CONSTRAINT sys_category_id_movie_bridge_FK REFERENCES vod_category(category_id),
     movie_id NUMBER
         CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id)
-);
-
-CREATE TABLE VOD_DIRECTOR(
-    director_id NUMBER
-        CONSTRAINT sys_director_id_PK PRIMARY KEY
-        CONSTRAINT sys_director_id_NN NOT NULL,
-    director_first_name VARCHAR(50)
-        CONSTRAINT sys_director_first_name_NN NOT NULL,
-    director_last_name VARCHAR(50)
-        CONSTRAINT sys_director_last_name_NN NOT NULL,
-    director_DOB DATE
-        CONSTRAINT sys_director_DOB_NN NOT NULL,
-    director_email VARCHAR2(50)
-);
-
-ALTER TABLE VOD_DIRECTOR
-    ADD CONSTRAINT sys_vod_director_email_CK_1  CHECK (director_email NOT LIKE '.%' AND 
-                                                  director_email NOT LIKE '@%' AND
-                                                  director_email NOT LIKE '%.' AND
-                                                  director_email NOT LIKE '%@' );
-
-CREATE TABLE VOD_MOVIE_DIRECTOR_BRIDGE(
-    movie_id_director_bridge_id NUMBER
-        CONSTRAINT sys_movie_id_director_bridge_PK PRIMARY KEY,
-    movie_id NUMBER
-        CONSTRAINT sys_movie_id_director_bridge_FK REFERENCES vod_movie(movie_id),
-    director_id NUMBER
-        CONSTRAINT sys_director_id_movie_id_bridge_FK REFERENCES vod_director(director_id)
+    PRIMARY KEY (category_id, movie_id)
 );

@@ -1,0 +1,23 @@
+ERROR at line 9:
+ORA-02438: Column check constraint cannot reference other columns
+
+SOLUTION
+ALTER TABLE VOD_RENTAL 
+    ADD CONSTRAINT start_date_viewing_CK CHECK (start_date_viewing >= rental_date);  
+ALTER TABLE VOD_RENTAL
+    ADD CONSTRAINT expiry_date_viewing_CK CHECK (expiry_date_viewing > start_date_viewing); 
+
+SQL> CREATE TABLE VOD_MOVIE_ACTOR_BRIDGE(
+  2          actor_address_id NUMBER,
+  3          movie_id NUMBER,
+  4          role_name VARCHAR2(25),
+  5          CONSTRAINT sys_movie_actor_bridge_PK1 PRIMARY KEY (actor_actress_id),
+  6          CONSTRAINT sys_movie_ID_bridge_PK2 PRIMARY KEY (movie_id)
+  7  );
+        CONSTRAINT sys_movie_ID_bridge_PK2 PRIMARY KEY (movie_id)
+                                           *
+ERROR at line 6:
+ORA-02260: table can have only one primary key
+
+SOLUTION: COMPOSITE KEY 
+PRIMARY KEY (actor_actress_id, movie_id) 
