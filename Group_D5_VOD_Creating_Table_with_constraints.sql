@@ -105,6 +105,14 @@ ALTER TABLE VOD_RENTAL
 ALTER TABLE VOD_RENTAL
     ADD CONSTRAINT expiry_date_viewing_CK CHECK (expiry_date_viewing > start_date_viewing); 
 
+CREATE TABLE VOD_MOVIE_RENTAL_BRIDGE (
+    movie_id NUMBER
+        CONSTRAINT sys_movie_id_rental_bridge_FK REFERENCES vod_movie(movie_id),
+    rental_id NUMBER
+        CONSTRAINT sys_rental_id_movie_bridge_FK REFERENCES vod_rental(rental_id),
+    PRIMARY KEY (movie_id, rental_id)
+);
+
 CREATE TABLE VOD_ACTOR_ACTRESS(
 	actor_actress_id NUMBER 
 		CONSTRAINT sys_actor_id_PK PRIMARY KEY,
@@ -207,7 +215,7 @@ CREATE TABLE VOD_MOVIE_ADVISORY_BRIDGE (
     advisory_id NUMBER
         CONSTRAINT sys_advisory_id_movie_bridge_FK REFERENCES vod_advisory(advisory_id),
     movie_id NUMBER
-        CONSTRAINT sys_movie_id_advisory_bridge_FK REFERENCES vod_movie(movie_id)
+        CONSTRAINT sys_movie_id_advisory_bridge_FK REFERENCES vod_movie(movie_id),
     PRIMARY KEY (advisory_id, movie_id)
 );
 
@@ -216,6 +224,6 @@ CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
     category_id NUMBER
         CONSTRAINT sys_category_id_movie_bridge_FK REFERENCES vod_category(category_id),
     movie_id NUMBER
-        CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id)
+        CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id),
     PRIMARY KEY (category_id, movie_id)
 );
