@@ -2,7 +2,8 @@
 
 set echo on
 
-
+drop table vod_advisory cascade constraints;
+drop table vod_category cascade constraints;
 drop table vod_rating cascade constraints;
 drop table vod_rental cascade constraints;
 drop table vod_movie_rental_bridge cascade constraints;
@@ -10,8 +11,7 @@ drop table vod_wishlist cascade constraints;
 drop table vod_credit_card cascade constraints;
 drop table vod_customers cascade constraints;
 drop table vod_movie cascade constraints;
-drop table vod_advisory cascade constraints;
-drop table vod_category cascade constraints;
+
 
 -- VOD_MOVIE TABLE CREATED WITH NULL CONSTRAINTS
 CREATE TABLE VOD_MOVIE (

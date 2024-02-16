@@ -1,8 +1,9 @@
 set echo on
 
 --remove the table in case it's already there--
-drop table vod_customers cascade constraints;
-drop table vod_credit_card cascade constraints;
+drop table CREDIT_CARD cascade constraints;
+drop table CUSTOMERS cascade constraints;
+
 
 --create customer table--
 
@@ -23,7 +24,7 @@ ALTER TABLE CUSTOMERS
 ALTER TABLE CUSTOMERS
     MODIFY (c_name NOT NULL);
 ALTER TABLE CUSTOMERS
-    ADD CONSTRAINT sys_customer_email_UK UNIQUE;
+    ADD CONSTRAINT sys_customer_email_UK UNIQUE (c_email);
 ALTER TABLE CUSTOMERS
     MODIFY (c_email NOT NULL);
 ALTER TABLE CUSTOMERS
@@ -33,7 +34,7 @@ ALTER TABLE CUSTOMERS
 ALTER TABLE CUSTOMERS
     MODIFY (city NOT NULL);
 ALTER TABLE CUSTOMERS
-    ADD CONSTRAINT sys_customer_province_CK check (customer_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QB', 'NS', 'NB', 'PE', 'NL', 'NT', 'NU', 'YT'));
+    ADD CONSTRAINT sys_customer_province_CK check (province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QB', 'NS', 'NB', 'PE', 'NL', 'NT', 'NU', 'YT'));
 ALTER TABLE CUSTOMERS
     MODIFY (province NOT NULL);
 ALTER TABLE CUSTOMERS
@@ -45,18 +46,18 @@ CREATE TABLE CREDIT_CARD
 (
     customer_id NUMBER,
     credit_card_num NUMBER(16),
-    credit_card_type CHAR(2);
+    credit_card_type CHAR(2)
 );
 
 --add constraints to credit card table--
 
 ALTER TABLE CREDIT_CARD
-    ADD CONSTRAINT sys_customer_id_credit_card_PK PRIMARY KEY;
+    ADD CONSTRAINT sys_customer_id_credit_card_PK PRIMARY KEY(customer_id);
 ALTER TABLE CREDIT_CARD
-    ADD CONSTRAINT sys_customer_id_credit_card_FK REFERENCES vod_customers(customer_id);
+    ADD CONSTRAINT sys_customer_id_credit_card_FK  FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
 ALTER TABLE CREDIT_CARD
     MODIFY (credit_card_num NOT NULL);
 ALTER TABLE CREDIT_CARD
-    ADD CONSTRAINT sys_credit_card_type_CK check (credit_card_type in ("AX", "MC", "VS"));
+    ADD CONSTRAINT sys_credit_card_type_CK_1 CHECK (credit_card_type in ('AX', 'MC', 'VS'));
 ALTER TABLE CREDIT_CARD
     MODIFY (credit_card_type NOT NULL);
