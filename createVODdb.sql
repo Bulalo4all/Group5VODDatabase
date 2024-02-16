@@ -2,6 +2,8 @@
 
 set echo on
 
+drop table VOD_MOVIE_ADVISORY_BRIDGE cascade constraints;
+drop table VOD_MOVIE_CATEGORY_BRIDGE cascade constraints;
 drop table vod_advisory cascade constraints;
 drop table vod_category cascade constraints;
 drop table vod_rating cascade constraints;
@@ -170,3 +172,21 @@ CREATE TABLE vod_advisory (
     full_description VARCHAR2(1000) NOT NULL
 );
 
+CREATE TABLE VOD_MOVIE_ADVISORY_BRIDGE (
+    movie_advisory_bridge_id NUMBER
+        CONSTRAINT sys_movie_advisory_bridge_id_PK PRIMARY KEY,
+    advisory_id NUMBER
+        CONSTRAINT sys_advisory_id_movie_bridge_FK REFERENCES vod_advisory(advisory_id),
+    movie_id NUMBER
+        CONSTRAINT sys_movie_id_advisory_bridge_FK REFERENCES vod_movie(movie_id)
+);
+
+-- Creating the VOD_MOVIE_CATEGORY_BRIDGE
+CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
+    movie_category_bridge_id NUMBER
+        CONSTRAINT sys_movie_category_bridge_id_PK PRIMARY KEY,
+    category_id NUMBER
+        CONSTRAINT sys_category_id_movie_bridge_FK REFERENCES vod_category(category_id),
+    movie_id NUMBER
+        CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id)
+);

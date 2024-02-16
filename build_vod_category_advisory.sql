@@ -45,5 +45,4 @@ CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
     movie_id NUMBER
         CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id)
 
-
 );
