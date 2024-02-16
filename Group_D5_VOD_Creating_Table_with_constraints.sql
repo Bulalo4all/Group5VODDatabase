@@ -1,5 +1,5 @@
 -- Script to create VOD Database --
-
+spool C:\cprg250s\Group5VODDatabase\Group_D5_VOD_Creating_Table_with_constraints_OUTPUT.txt
 set echo on
 
 drop table VOD_MOVIE_ACTOR_BRIDGE cascade constraints;
@@ -76,7 +76,8 @@ ALTER TABLE VOD_CUSTOMERS
     ADD CONSTRAINT sys_customer_email_CK_1 CHECK (customer_email NOT LIKE '.%' AND 
                                                   customer_email NOT LIKE '@%' AND
                                                   customer_email NOT LIKE '%.' AND
-                                                  customer_email NOT LIKE '%@' );
+                                                  customer_email NOT LIKE '%@' AND
+                                                  customer_email LIKE '@%.' );
 
 -- VOD RENTAL table created with not null and some UK keys
 CREATE TABLE VOD_RENTAL (
@@ -148,6 +149,12 @@ CREATE TABLE VOD_DIRECTOR(
 
 ALTER TABLE VOD_DIRECTOR
 	ADD CONSTRAINT sys_director_email_UK UNIQUE (director_email);
+ALTER TABLE VOD_DIRECTOR
+    ADD CONSTRAINT sys_director_email_CK CHECK (director_email NOT LIKE '.%' AND 
+                                                director_email NOT LIKE '@%' AND
+                                                director_email NOT LIKE '%.' AND
+                                                director_email NOT LIKE '%@' AND
+                                                director_email LIKE '@%.' );
 
 CREATE TABLE VOD_MOVIE_DIRECTOR_BRIDGE(
 	director_id NUMBER,
@@ -187,10 +194,14 @@ CREATE TABLE VOD_CREDIT_CARD(
 
 -- VOD_Rating table created 
 CREATE TABLE VOD_RATING (
-    rating_id NUMBER,
+    rating_id NUMBER
+        CONSTRAINT sys_vod_rating_PK PRIMARY KEY,
     rating_type NUMBER(1)
         CONSTRAINT sys_rating_type_CK CHECK (rating_type between 1 and 6)
 );
+
+ALTER TABLE vod_movie
+    ADD CONSTRAINT sys_movie_rating_id_FK FOREIGN KEY (rating_id) REFERENCES vod_rating(rating_id);
 
 CREATE TABLE vod_category (
     category_id NUMBER
@@ -227,3 +238,5 @@ CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
         CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id),
     PRIMARY KEY (category_id, movie_id)
 );
+
+spool off

@@ -1,0 +1,363 @@
+SQL> set echo on
+SQL> 
+SQL> drop table VOD_MOVIE_ACTOR_BRIDGE cascade constraints;
+
+Table dropped.
+
+SQL> drop table VOD_ACTOR_ACTRESS cascade constraints;
+
+Table dropped.
+
+SQL> drop table VOD_MOVIE_DIRECTOR_BRIDGE cascade constraints;
+
+Table dropped.
+
+SQL> drop table VOD_MOVIE_ADVISORY_BRIDGE cascade constraints;
+
+Table dropped.
+
+SQL> drop table VOD_MOVIE_CATEGORY_BRIDGE cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_director cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_advisory cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_category cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_rating cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_rental cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_movie_rental_bridge cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_wishlist cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_credit_card cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_customers cascade constraints;
+
+Table dropped.
+
+SQL> drop table vod_movie cascade constraints;
+
+Table dropped.
+
+SQL> 
+SQL> 
+SQL> -- VOD_MOVIE TABLE CREATED WITH NULL CONSTRAINTS
+SQL> CREATE TABLE VOD_MOVIE (
+  2  	 movie_id NUMBER
+  3  	     CONSTRAINT sys_vod_movie_pk PRIMARY KEY,
+  4  	 title VARCHAR2(50)
+  5  	     CONSTRAINT sys_title_NN NOT NULL,
+  6  	 release_date DATE
+  7  	     CONSTRAINT sys_date_NN NOT NULL,
+  8  	 movied_description VARCHAR2 (1000)
+  9  	     CONSTRAINT sys_movie_description_NN NOT NULL,
+ 10  	 rating_id NUMBER
+ 11  	     CONSTRAINT sys_rating_id_NN NOT NULL,
+ 12  	 category_id NUMBER
+ 13  	     CONSTRAINT sys_category_id_NN NOT NULL,
+ 14  	 duration NUMBER (4)
+ 15  	     CONSTRAINT sys_duration_NN NOT NULL
+ 16  	     CONSTRAINT sys_duration_check_CK CHECK (duration > 0),
+ 17  	 new_release NUMBER (1)
+ 18  	     CONSTRAINT sys_new_release_NN NOT NULL
+ 19  	     CONSTRAINT sys_new_release_CK CHECK (new_release in (0,1)),
+ 20  	 most_popular NUMBER (1)
+ 21  	     CONSTRAINT sys_most_popular_NN NOT NULL
+ 22  	     CONSTRAINT sys_most_popular_CK CHECK (most_popular in (0,1)),
+ 23  	 coming_soon NUMBER (1)
+ 24  	     CONSTRAINT sys_coming_soon_NN NOT NULL
+ 25  	     CONSTRAINT sys_coming_soon_CK CHECK (coming_soon in (0,1)),
+ 26  	 sd_price NUMBER (4, 2)
+ 27  	     CONSTRAINT sys_sd_price_NN NOT NULL,
+ 28  	 hd_price NUMBER (4, 2)
+ 29  	     CONSTRAINT sys_hd_price NOT NULL
+ 30  );
+
+Table created.
+
+SQL> 
+SQL> 
+SQL> CREATE TABLE VOD_CUSTOMERS(
+  2  	 customer_id NUMBER
+  3  	     CONSTRAINT sys_customer_id_PK PRIMARY KEY,
+  4  	 customer_name VARCHAR2 (50)
+  5  	     CONSTRAINT sys_customer_name_NN NOT NULL,
+  6  	 customer_email VARCHAR2 (50)
+  7  	     CONSTRAINT sys_customer_email_UK_1 UNIQUE,
+  8  	 customer_phone_number NUMBER (12)
+  9  	     CONSTRAINT sys_customer_phone_number_NN NOT NULL,
+ 10  	 customer_street_address VARCHAR2 (100)
+ 11  	     CONSTRAINT sys_customer_street_address_NN NOT NULL,
+ 12  	 customer_city VARCHAR2 (50)
+ 13  	     CONSTRAINT sys_customer_city_NN NOT NULL,
+ 14  	 customer_province CHAR(2)
+ 15  	     CONSTRAINT sys_customer_province_NN NOT NULL,
+ 16  	     CONSTRAINT sys_customer_province_CK_1 check (customer_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QB', 'NS', 'NB', 'PE', 'NL', 'NT', 'NU', 'YT')),
+ 17  	 customer_postal_code VARCHAR2(6)
+ 18  	     CONSTRAINT sys_customer_postal_code_NN NOT NULL
+ 19  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_CUSTOMERS
+  2  	 ADD CONSTRAINT sys_customer_email_CK_1 CHECK (customer_email NOT LIKE '.%' AND
+  3  						       customer_email NOT LIKE '@%' AND
+  4  						       customer_email NOT LIKE '%.' AND
+  5  						       customer_email NOT LIKE '%@' AND
+  6  						       customer_email LIKE '@%.' );
+
+Table altered.
+
+SQL> 
+SQL> -- VOD RENTAL table created with not null and some UK keys
+SQL> CREATE TABLE VOD_RENTAL (
+  2  	 rental_id NUMBER
+  3  	     CONSTRAINT sys_rental_id_PK PRIMARY KEY,
+  4  	 customer_id NUMBER
+  5  	     CONSTRAINT sys_customer_id_NN NOT NULL
+  6  	     CONSTRAINT sys_customer_id_FK REFERENCES vod_customers(customer_id),
+  7  	 rental_date DATE,
+  8  	 start_date_viewing DATE,
+  9  	 expiry_date_viewing DATE,
+ 10  	 return_date DATE,
+ 11  	 price_paid NUMBER (4, 2)
+ 12  	     CONSTRAINT sys_price_paid_NN NOT NULL,
+ 13  	 customer_rating NUMBER
+ 14  	     CONSTRAINT sys_customer_rating_CK CHECK (customer_rating between 0 and 5),
+ 15  	 credit_card_num NUMBER (16)
+ 16  	     CONSTRAINT sys_credit_card_num_NN NOT NULL,
+ 17  	 credit_card_type CHAR(2)
+ 18  	     CONSTRAINT sys_credit_card_type_NN NOT NULL
+ 19  	     CONSTRAINT sys_credit_card_type_CK CHECK (credit_card_type in ('AX', 'MC', 'VS'))
+ 20  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_RENTAL
+  2  	 ADD CONSTRAINT start_date_viewing_CK CHECK (start_date_viewing >= rental_date);
+
+Table altered.
+
+SQL> ALTER TABLE VOD_RENTAL
+  2  	 ADD CONSTRAINT expiry_date_viewing_CK CHECK (expiry_date_viewing > start_date_viewing);
+
+Table altered.
+
+SQL> 
+SQL> CREATE TABLE VOD_MOVIE_RENTAL_BRIDGE (
+  2  	 movie_id NUMBER
+  3  	     CONSTRAINT sys_movie_id_rental_bridge_FK REFERENCES vod_movie(movie_id),
+  4  	 rental_id NUMBER
+  5  	     CONSTRAINT sys_rental_id_movie_bridge_FK REFERENCES vod_rental(rental_id),
+  6  	 PRIMARY KEY (movie_id, rental_id)
+  7  );
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE VOD_ACTOR_ACTRESS(
+  2  	     actor_actress_id NUMBER
+  3  		     CONSTRAINT sys_actor_id_PK PRIMARY KEY,
+  4  	     first_name VARCHAR2(50) NOT NULL,
+  5  	     last_name VARCHAR2(50) NOT NULL,
+  6  	     date_of_birth DATE NOT NULL,
+  7  	     actor_actress_email VARCHAR2(50)
+  8  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_ACTOR_ACTRESS
+  2  	     ADD CONSTRAINT sys_actor_email_UK UNIQUE (actor_actress_email);
+
+Table altered.
+
+SQL> 
+SQL> 
+SQL> CREATE TABLE VOD_MOVIE_ACTOR_BRIDGE(
+  2  	     actor_actress_id NUMBER,
+  3  	     movie_id NUMBER,
+  4  	     role_name VARCHAR2(25),
+  5  	 PRIMARY KEY (actor_actress_id, movie_id)
+  6  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_MOVIE_ACTOR_BRIDGE
+  2  	     ADD CONSTRAINT sys_movie_actor_bridge_FK1 FOREIGN KEY(movie_id) REFERENCES vod_movie (movie_id);
+
+Table altered.
+
+SQL> ALTER TABLE VOD_MOVIE_ACTOR_BRIDGE
+  2  	     ADD CONSTRAINT sys_movie_actor_bridge_FK2 FOREIGN KEY(actor_actress_id) REFERENCES VOD_ACTOR_ACTRESS(actor_actress_id);
+
+Table altered.
+
+SQL> 
+SQL> CREATE TABLE VOD_DIRECTOR(
+  2  	     director_id NUMBER CONSTRAINT sys_director_id_PK PRIMARY KEY,
+  3  	     first_name VARCHAR2(50) NOT NULL,
+  4  	     last_name VARCHAR2(50)NOT NULL,
+  5  	     date_of_birth DATE NOT NULL,
+  6  	     director_email VARCHAR2(50)
+  7  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_DIRECTOR
+  2  	     ADD CONSTRAINT sys_director_email_UK UNIQUE (director_email);
+
+Table altered.
+
+SQL> ALTER TABLE VOD_DIRECTOR
+  2  	 ADD CONSTRAINT sys_director_email_CK CHECK (director_email NOT LIKE '.%' AND
+  3  						     director_email NOT LIKE '@%' AND
+  4  						     director_email NOT LIKE '%.' AND
+  5  						     director_email NOT LIKE '%@' AND
+  6  						     director_email LIKE '@%.' );
+
+Table altered.
+
+SQL> 
+SQL> CREATE TABLE VOD_MOVIE_DIRECTOR_BRIDGE(
+  2  	     director_id NUMBER,
+  3  	     movie_id NUMBER,
+  4  	     PRIMARY KEY (director_id, movie_id)
+  5  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE VOD_MOVIE_DIRECTOR_BRIDGE
+  2  	     ADD CONSTRAINT sys_movie_director_FK1 FOREIGN KEY(movie_id) REFERENCES vod_movie(movie_id);
+
+Table altered.
+
+SQL> ALTER TABLE VOD_MOVIE_DIRECTOR_BRIDGE
+  2  	     ADD CONSTRAINT sys_movie_director_FK2 FOREIGN KEY(director_id) REFERENCES vod_director (director_id);
+
+Table altered.
+
+SQL> 
+SQL> 
+SQL> --Wishlist bridge created with constraints
+SQL> CREATE TABLE VOD_WISHLIST(
+  2  	 wishlist_id NUMBER
+  3  	     CONSTRAINT sys_wishlist_id_PK PRIMARY KEY,
+  4  	 customer_id NUMBER
+  5  	     CONSTRAINT sys_customer_wishlist_bridge_FK REFERENCES vod_customers(customer_id),
+  6  	 movie_id NUMBER
+  7  	     CONSTRAINT sys_movie_wishlist_bridge_FK REFERENCES vod_movie(movie_id),
+  8  	 date_added DATE
+  9  	     CONSTRAINT sys_date_added_NN NOT NULL
+ 10  );
+
+Table created.
+
+SQL> 
+SQL> --VOD_CREDIT_CARD table created with constraints
+SQL> CREATE TABLE VOD_CREDIT_CARD(
+  2  	 customer_id NUMBER
+  3  	     CONSTRAINT sys_customer_id_credit_card_PK_1 PRIMARY KEY
+  4  	     CONSTRAINT sys_customer_id_credit_card_FK_1 REFERENCES vod_customers(customer_id),
+  5  	 customer_credit_card_num NUMBER
+  6  	     CONSTRAINT sys_customer_credit_card_num_NN NOT NULL,
+  7  	 customer_credit_card_type CHAR(2)
+  8  	     CONSTRAINT sys_customer_credit_card_type_NN NOT NULL
+  9  	     CONSTRAINT sys_customer_credit_card_type_CK CHECK (customer_credit_card_type in ('AX', 'MC', 'VS'))
+ 10  );
+
+Table created.
+
+SQL> 
+SQL> -- VOD_Rating table created
+SQL> CREATE TABLE VOD_RATING (
+  2  	 rating_id NUMBER
+  3  	     CONSTRAINT sys_vod_rating_PK PRIMARY KEY,
+  4  	 rating_type NUMBER(1)
+  5  	     CONSTRAINT sys_rating_type_CK CHECK (rating_type between 1 and 6)
+  6  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE vod_movie
+  2  	 ADD CONSTRAINT sys_movie_rating_id_FK FOREIGN KEY (rating_id) REFERENCES vod_rating(rating_id);
+
+Table altered.
+
+SQL> 
+SQL> CREATE TABLE vod_category (
+  2  	 category_id NUMBER
+  3  	     CONSTRAINT vod_category_PK PRIMARY KEY, -- Changed constraint name
+  4  	 category_name VARCHAR2(15)
+  5  	     CONSTRAINT vod_category_name_NN NOT NULL,
+  6  	 parent_category_id NUMBER
+  7  	     CONSTRAINT parent_category_FK REFERENCES vod_category(category_id)
+  8  );
+
+Table created.
+
+SQL> 
+SQL> -- Creating the ADVISORY table
+SQL> CREATE TABLE vod_advisory (
+  2  	 advisory_id NUMBER
+  3  	     CONSTRAINT vod_advisory_PK PRIMARY KEY, -- Changed constraint name
+  4  	 advisory_type NUMBER(2) NOT NULL
+  5  	     CONSTRAINT adv_type_CK CHECK (advisory_type BETWEEN 1 AND 5),
+  6  	 short_description VARCHAR2(255) NOT NULL,
+  7  	 full_description VARCHAR2(1000) NOT NULL
+  8  );
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE VOD_MOVIE_ADVISORY_BRIDGE (
+  2  	 advisory_id NUMBER
+  3  	     CONSTRAINT sys_advisory_id_movie_bridge_FK REFERENCES vod_advisory(advisory_id),
+  4  	 movie_id NUMBER
+  5  	     CONSTRAINT sys_movie_id_advisory_bridge_FK REFERENCES vod_movie(movie_id),
+  6  	 PRIMARY KEY (advisory_id, movie_id)
+  7  );
+
+Table created.
+
+SQL> 
+SQL> -- Creating the VOD_MOVIE_CATEGORY_BRIDGE
+SQL> CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
+  2  	 category_id NUMBER
+  3  	     CONSTRAINT sys_category_id_movie_bridge_FK REFERENCES vod_category(category_id),
+  4  	 movie_id NUMBER
+  5  	     CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id),
+  6  	 PRIMARY KEY (category_id, movie_id)
+  7  );
+
+Table created.
+
+SQL> 
+SQL> spool off
