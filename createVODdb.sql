@@ -1,9 +1,10 @@
 -- Script to create VOD Database --
 
 set echo on
-
+drop table VOD_MOVIE_DIRECTOR_BRIDGE cascade constraints;
 drop table VOD_MOVIE_ADVISORY_BRIDGE cascade constraints;
 drop table VOD_MOVIE_CATEGORY_BRIDGE cascade constraints;
+drop table vod_director cascade constraints;
 drop table vod_advisory cascade constraints;
 drop table vod_category cascade constraints;
 drop table vod_rating cascade constraints;
@@ -64,7 +65,7 @@ CREATE TABLE VOD_CUSTOMERS(
     customer_name VARCHAR2 (50)
         CONSTRAINT sys_customer_name_NN NOT NULL,
     customer_email VARCHAR2 (50)
-        CONSTRAINT sys_customer_email_UK UNIQUE,
+        CONSTRAINT sys_customer_email_UK_1 UNIQUE,
     customer_phone_number NUMBER (12)
         CONSTRAINT sys_customer_phone_number_NN NOT NULL,
     customer_street_address VARCHAR2 (100)
@@ -73,7 +74,7 @@ CREATE TABLE VOD_CUSTOMERS(
         CONSTRAINT sys_customer_city_NN NOT NULL,
     customer_province CHAR(2)
         CONSTRAINT sys_customer_province_NN NOT NULL,
-        CONSTRAINT sys_customer_province_CK check (customer_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QB', 'NS', 'NB', 'PE', 'NL', 'NT', 'NU', 'YT')),
+        CONSTRAINT sys_customer_province_CK_1 check (customer_province in ('BC', 'AB', 'SK', 'MB', 'ON', 'QB', 'NS', 'NB', 'PE', 'NL', 'NT', 'NU', 'YT')),
     customer_postal_code VARCHAR2(6)
         CONSTRAINT sys_customer_postal_code_NN NOT NULL
 );
@@ -137,8 +138,8 @@ CREATE TABLE VOD_WISHLIST(
 --VOD_CREDIT_CARD table created with constraints
 CREATE TABLE VOD_CREDIT_CARD(
     customer_id NUMBER
-        CONSTRAINT sys_customer_id_credit_card_PK PRIMARY KEY
-        CONSTRAINT sys_customer_id_credit_card_FK REFERENCES vod_customers(customer_id),
+        CONSTRAINT sys_customer_id_credit_card_PK_1 PRIMARY KEY
+        CONSTRAINT sys_customer_id_credit_card_FK_1 REFERENCES vod_customers(customer_id),
     customer_credit_card_num NUMBER
         CONSTRAINT sys_customer_credit_card_num_NN NOT NULL,
     customer_credit_card_type CHAR(2)
@@ -189,4 +190,32 @@ CREATE TABLE VOD_MOVIE_CATEGORY_BRIDGE (
         CONSTRAINT sys_category_id_movie_bridge_FK REFERENCES vod_category(category_id),
     movie_id NUMBER
         CONSTRAINT sys_movie_id_category_bridge_FK REFERENCES vod_movie(movie_id)
+);
+
+CREATE TABLE VOD_DIRECTOR(
+    director_id NUMBER
+        CONSTRAINT sys_director_id_PK PRIMARY KEY
+        CONSTRAINT sys_director_id_NN NOT NULL,
+    director_first_name VARCHAR(50)
+        CONSTRAINT sys_director_first_name_NN NOT NULL,
+    director_last_name VARCHAR(50)
+        CONSTRAINT sys_director_last_name_NN NOT NULL,
+    director_DOB DATE
+        CONSTRAINT sys_director_DOB_NN NOT NULL,
+    director_email VARCHAR2(50)
+);
+
+ALTER TABLE VOD_DIRECTOR
+    ADD CONSTRAINT sys_vod_director_email_CK_1  CHECK (director_email NOT LIKE '.%' AND 
+                                                  director_email NOT LIKE '@%' AND
+                                                  director_email NOT LIKE '%.' AND
+                                                  director_email NOT LIKE '%@' );
+
+CREATE TABLE VOD_MOVIE_DIRECTOR_BRIDGE(
+    movie_id_director_bridge_id NUMBER
+        CONSTRAINT sys_movie_id_director_bridge_PK PRIMARY KEY,
+    movie_id NUMBER
+        CONSTRAINT sys_movie_id_director_bridge_FK REFERENCES vod_movie(movie_id),
+    director_id NUMBER
+        CONSTRAINT sys_director_id_movie_id_bridge_FK REFERENCES vod_director(director_id)
 );
